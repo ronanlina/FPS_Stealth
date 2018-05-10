@@ -48,6 +48,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	UAnimSequence* FireAnimation;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	bool bIsCarryingObjective;//indicates if the player is carrying the objective (when collided with the objective actor)
+
 protected:
 	
 	/** Fires a projectile. */

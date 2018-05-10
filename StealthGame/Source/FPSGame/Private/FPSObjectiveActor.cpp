@@ -3,13 +3,11 @@
 #include "FPSObjectiveActor.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h" //used in PlayEffects()
+#include "FPSCharacter.h"//used when character picked up the pickup actor and identify as carrying the objective
 
 // Sets default values
 AFPSObjectiveActor::AFPSObjectiveActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComp"));
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision); //Mesh Component (root) should have no collision
 	RootComponent = MeshComp; //first in the heirarchy
@@ -19,7 +17,6 @@ AFPSObjectiveActor::AFPSObjectiveActor()
 	SphereComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECR_Overlap);
 	SphereComp->SetupAttachment(MeshComp); // attaches to MeshComp's heirarchy
-
 }
 
 // Called when the game starts or when spawned
@@ -34,17 +31,20 @@ void AFPSObjectiveActor::PlayEffects()
 	UGameplayStatics::SpawnEmitterAtLocation(this, PickupFX, GetActorLocation()); //which world, Emitter template, location
 }
 
-// Called every frame
-void AFPSObjectiveActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AFPSObjectiveActor::NotifyActorBeginOverlap(AActor * OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
 		PlayEffects();
+
+		AFPSCharacter* MyCharacter = Cast<AFPSCharacter>(OtherActor); // casting the overlapping actor to MyCharacter variable.
+		
+				//check if overlapped with AFPSCharacter type	
+			if (MyCharacter)
+			{
+				MyCharacter->bIsCarryingObjective = true; //current MyCharacter actor is carrying the objective
+			
+					Destroy();
+			}
 }
 
