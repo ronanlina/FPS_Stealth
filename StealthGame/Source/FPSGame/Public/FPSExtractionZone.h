@@ -28,6 +28,9 @@ protected:
 	UFUNCTION()					//Parameter can be found AACTOR definition
 	void HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	USoundBase* ObjectiveMissingSound; //Responsible for sound played when pawn colliding with isCarryingObjective equal to false
+
 public:	
 	
 	

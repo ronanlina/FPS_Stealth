@@ -5,6 +5,7 @@
 #include "Components/DecalComponent.h"
 #include "FPSCharacter.h"
 #include "FPSGameMode.h"
+#include "Kismet/Gameplaystatics.h" // to play sound
 
 // Sets default values
 AFPSExtractionZone::AFPSExtractionZone()
@@ -26,16 +27,25 @@ AFPSExtractionZone::AFPSExtractionZone()
 void AFPSExtractionZone::HandleOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlapped"))
 
 		AFPSCharacter* MyPawn = Cast<AFPSCharacter>(OtherActor);
 
-	if (MyPawn && MyPawn->bIsCarryingObjective)
-	{										// Getting the game mode
-		AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());
-
-		if (GM) {
-			GM->CompleteMission(MyPawn);
+		if (MyPawn == nullptr)
+		{		
+			return;
 		}
-	}
+
+		if (MyPawn->bIsCarryingObjective)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Overlapped"))
+				AFPSGameMode* GM = Cast<AFPSGameMode>(GetWorld()->GetAuthGameMode());// Getting the game mode
+			if (GM)
+			{
+				GM->CompleteMission(MyPawn);
+			}
+		}
+		else 
+		{
+			UGameplayStatics::PlaySound2D(this, ObjectiveMissingSound); //Responsible for sound played when pawn colliding with isCarryingObjective equal to false
+		}
 }
