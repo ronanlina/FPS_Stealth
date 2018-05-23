@@ -19,9 +19,9 @@ protected:
 public:
 
 	AFPSGameMode();
-	void CompleteMission(APawn* InstigatorPawn); //handling logics when game is over
+	void CompleteMission(APawn* InstigatorPawn, bool bMissionSuccess); //handling logics when game is over
 	UFUNCTION(BlueprintImplementableEvent, Category = "GameMode")
-	void OnMissionCompleted(APawn* InstigatorPawn);
+	void OnMissionCompleted(APawn* InstigatorPawn, bool bMissionSuccess);
 };
 
 

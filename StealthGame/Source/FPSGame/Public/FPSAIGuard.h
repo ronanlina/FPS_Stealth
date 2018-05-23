@@ -20,12 +20,22 @@ public:
 	UFUNCTION()
 		void OnPawnSeen(APawn* SeenPawn);
 
+	UFUNCTION()
+		void OnNoiseHeard(APawn* NoiseInstigator, const FVector& Location, float Volume);
+
+	FRotator OriginalRotation;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UPawnSensingComponent* PawnSensingComp;
+
+	UFUNCTION()
+	void ResetOrientation();
+
+	FTimerHandle TimerHandle_ResetOrientation;
 
 public:	
 	// Called every frame
