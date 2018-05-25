@@ -30,14 +30,17 @@ void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
 		GM->CompleteMission(SeenPawn, false);
 	}
 
-	SetGuardState(Alerted);
+	SetGuardState(EAIState::Alerted);
 
 }
 
 void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location, float Volume)
 {
-	if (GuardState == Alerted)
+	if (GuardState == EAIState::Alerted)
 	{
+		return;
+	}
+
 		DrawDebugSphere(GetWorld(), Location, 32.f, 12.f, FColor::Blue, false, 10.f);
 
 		//Distance from where the sound was made subtracted to the actor location
@@ -54,11 +57,10 @@ void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location
 		GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
 
 		GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
-	}
 
 	if (GuardState != EAIState::Alerted)
 	{
-		SetGuardState(Suspicious);
+		SetGuardState(EAIState::Suspicious);
 	}
 }
 
@@ -68,7 +70,7 @@ void AFPSAIGuard::ResetOrientation()
 
 	if (GuardState != EAIState::Alerted)
 	{
-		SetGuardState(Idle);
+		SetGuardState(EAIState::Idle);
 	}
 }
 
