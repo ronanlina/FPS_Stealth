@@ -12,3 +12,6 @@
 ########################
 *.VC.db
 */.vs
+StealthGame/Content/StarterContent/
+StealthGame/Content/Maps/Platformer_BuiltData.uasset
+StealthGame/Content/Maps/Platformer.umap
