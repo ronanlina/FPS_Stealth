@@ -11,6 +11,8 @@ AFPSAIGuard::AFPSAIGuard()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
+
+	GuardState = EAIState::Idle;
 }
 
 void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
@@ -28,32 +30,61 @@ void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
 		GM->CompleteMission(SeenPawn, false);
 	}
 
+	SetGuardState(Alerted);
+
 }
 
 void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location, float Volume)
 {
-	DrawDebugSphere(GetWorld(), Location, 32.f, 12.f, FColor::Blue, false, 10.f);
-	
-	//Distance from where the sound was made subtracted to the actor location
-	FVector Direction = Location - GetActorLocation();
-	Direction.Normalize();
+	if (GuardState == Alerted)
+	{
+		DrawDebugSphere(GetWorld(), Location, 32.f, 12.f, FColor::Blue, false, 10.f);
 
-						//direction vector
-	FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-	NewLookAt.Pitch = 0.f;
-	NewLookAt.Roll = 0.f;
+		//Distance from where the sound was made subtracted to the actor location
+		FVector Direction = Location - GetActorLocation();
+		Direction.Normalize();
 
-	SetActorRotation(NewLookAt);
+		//direction vector
+		FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+		NewLookAt.Pitch = 0.f;
+		NewLookAt.Roll = 0.f;
 
-	GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+		SetActorRotation(NewLookAt);
 
-	GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
+		GetWorldTimerManager().ClearTimer(TimerHandle_ResetOrientation);
+
+		GetWorldTimerManager().SetTimer(TimerHandle_ResetOrientation, this, &AFPSAIGuard::ResetOrientation, 3.0f);
+	}
+
+	if (GuardState != EAIState::Alerted)
+	{
+		SetGuardState(Suspicious);
+	}
 }
 
 void AFPSAIGuard::ResetOrientation()
 {
 	SetActorRotation(OriginalRotation);
+
+	if (GuardState != EAIState::Alerted)
+	{
+		SetGuardState(Idle);
+	}
 }
+
+void AFPSAIGuard::SetGuardState(EAIState NewState)
+{
+	if (GuardState == NewState)
+	{
+		return;
+	}
+
+	GuardState = NewState;
+
+	OnStateChanged(GuardState);
+}
+
+
 
 // Called when the game starts or when spawned
 void AFPSAIGuard::BeginPlay()
