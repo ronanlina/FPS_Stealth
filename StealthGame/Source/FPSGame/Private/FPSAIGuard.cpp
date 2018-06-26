@@ -4,7 +4,9 @@
 #include "Perception/PawnSensingComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Components/PawnNoiseEmitterComponent.h"
+#include "AI/Navigation/NavigationSystem.h"
 #include "FPSGameMode.h"
+
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
 {
@@ -32,6 +34,12 @@ void AFPSAIGuard::OnPawnSeen(APawn* SeenPawn)
 
 	SetGuardState(EAIState::Alerted);
 
+	//Stop movement if patrolling
+	AController* Controller = GetController();
+	if (Controller)
+	{
+		Controller->StopMovement();
+	}
 }
 
 void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location, float Volume)
@@ -62,6 +70,13 @@ void AFPSAIGuard::OnNoiseHeard(APawn * NoiseInstigator, const FVector & Location
 	{
 		SetGuardState(EAIState::Suspicious);
 	}
+
+	//Stop movement if patrolling
+	AController* Controller = GetController();
+	if (Controller)
+	{
+		Controller->StopMovement();
+	}
 }
 
 void AFPSAIGuard::ResetOrientation()
@@ -72,6 +87,12 @@ void AFPSAIGuard::ResetOrientation()
 	{
 		SetGuardState(EAIState::Idle);
 	}
+
+
+	if (bPatrol)
+	{
+		MoveToNextPatrolPoint();
+	}	
 }
 
 void AFPSAIGuard::SetGuardState(EAIState NewState)
@@ -97,12 +118,43 @@ void AFPSAIGuard::BeginPlay()
 	PawnSensingComp->OnHearNoise.AddDynamic(this, &AFPSAIGuard::OnNoiseHeard);
 
 	OriginalRotation = GetActorRotation();
+
+	if (bPatrol)
+	{
+		MoveToNextPatrolPoint();
+	}
 	
+}
+void AFPSAIGuard::MoveToNextPatrolPoint()
+{
+	//assign next patrol point
+	if (CurrentPatrolPoint == nullptr || CurrentPatrolPoint == SecondPatrolPoint)
+	{
+		CurrentPatrolPoint = FirstPatrolPoint;
+	}
+	else
+	{
+		CurrentPatrolPoint = SecondPatrolPoint;
+	}
+
+	UNavigationSystem::SimpleMoveToActor(GetController(), CurrentPatrolPoint);
 }
 // Called every frame
 void AFPSAIGuard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (CurrentPatrolPoint)
+	{
+		FVector Delta = GetActorLocation() - CurrentPatrolPoint->GetActorLocation();
+		float DistanceToGoal = Delta.Size();
+
+		//check if within 15 
+		if (DistanceToGoal < 50)
+		{
+			MoveToNextPatrolPoint();
+		}
+	}
 
 }
 // Called to bind functionality to input

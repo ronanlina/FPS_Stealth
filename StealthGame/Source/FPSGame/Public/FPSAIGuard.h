@@ -52,6 +52,25 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category = "AI")
 	void OnStateChanged(EAIState NewState);
 
+	//patrol challenge code
+
+	//lets guard go on patrol
+	UPROPERTY(EditInstanceOnly, Category = "AI")
+		bool bPatrol;
+
+	//first of 2 patrol points to patrol between
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition = "bPatrol"))
+		AActor* FirstPatrolPoint;
+
+	//second
+	UPROPERTY(EditInstanceOnly, Category = "AI", meta = (EditCondition = "bPatrol"))
+		AActor*	SecondPatrolPoint;
+
+	//current point of the actor is either moving to or standing at
+	AActor* CurrentPatrolPoint;
+
+	void MoveToNextPatrolPoint();
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
