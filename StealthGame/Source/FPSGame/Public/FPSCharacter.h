@@ -48,10 +48,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 	UAnimSequence* FireAnimation;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Gameplay")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Gameplay")
 	bool bIsCarryingObjective;//indicates if the player is carrying the objective (when collided with the objective actor)
 
 protected:
+
+	//NETWORKING
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerFire();
 	
 	/** Fires a projectile. */
 	void Fire();
@@ -75,6 +79,10 @@ public:
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return CameraComponent; }
+
+	//NETWORKING
+
+	virtual void Tick(float DeltaTime) override;
 
 };
 

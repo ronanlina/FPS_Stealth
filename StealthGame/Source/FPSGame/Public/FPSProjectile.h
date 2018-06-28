@@ -29,6 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 		UParticleSystem * HitFX;
 
+
 	void PlayEffects();
 
 public:

@@ -5,6 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+
 void AFPSProjectile::PlayEffects()
 {
 	UGameplayStatics::SpawnEmitterAtLocation(this, HitFX, GetActorLocation());
@@ -35,6 +36,11 @@ AFPSProjectile::AFPSProjectile()
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	//NETWORKING
+	SetReplicates(true);
+	SetReplicateMovement(true);
+
 }
 
 
@@ -46,7 +52,10 @@ void AFPSProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPr
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 	}
 
-	MakeNoise(1.f, Instigator);
 	PlayEffects();
-	Destroy();
+	if (Role == ROLE_Authority)
+	{
+		MakeNoise(1.f, Instigator);
+		Destroy();
+	}
 }

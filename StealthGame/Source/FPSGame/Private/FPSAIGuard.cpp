@@ -6,6 +6,7 @@
 #include "Components/PawnNoiseEmitterComponent.h"
 #include "AI/Navigation/NavigationSystem.h"
 #include "FPSGameMode.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AFPSAIGuard::AFPSAIGuard()
@@ -95,6 +96,20 @@ void AFPSAIGuard::ResetOrientation()
 	}	
 }
 
+//NETWORK
+void AFPSAIGuard::OnRep_GuardState()
+{
+	OnStateChanged(GuardState);
+}
+
+void AFPSAIGuard::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	//will replicate to everyone connected. all clients.
+	DOREPLIFETIME(AFPSAIGuard, GuardState);
+}
+
 void AFPSAIGuard::SetGuardState(EAIState NewState)
 {
 	if (GuardState == NewState)
@@ -104,7 +119,7 @@ void AFPSAIGuard::SetGuardState(EAIState NewState)
 
 	GuardState = NewState;
 
-	OnStateChanged(GuardState);
+	OnRep_GuardState();
 }
 
 

@@ -45,7 +45,12 @@ protected:
 
 	FTimerHandle TimerHandle_ResetOrientation;
 
+	//NETWORK
+	UPROPERTY(ReplicatedUsing=OnRep_GuardState)
 	EAIState GuardState;
+
+	UFUNCTION()
+	void OnRep_GuardState();
 
 	void SetGuardState(EAIState NewState);
 
